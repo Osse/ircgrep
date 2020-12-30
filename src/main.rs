@@ -36,15 +36,11 @@ enum MatchStatus {
 }
 
 fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
-    let mut nick = lv.nick();
-
     if settings.strip_joins && lv.is_join() {
         return MatchStatus::Skip;
     }
 
-    if nick.starts_with('@') || nick.starts_with('+') {
-        nick = nick.get(1..).unwrap();
-    }
+    let nick = lv.nick();
 
     if !settings.nickname.is_empty() && settings.nickname != nick {
         return MatchStatus::NoMatch;

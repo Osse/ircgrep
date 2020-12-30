@@ -10,7 +10,11 @@ impl LineView<'_> {
     }
 
     pub fn nick(&self) -> &str {
-        &self.line[self.first_tab + 1..self.second_tab]
+        let nick = &self.line[self.first_tab + 1..self.second_tab];
+        match nick.strip_prefix(&['@', '+'][..]) {
+            Some(n) => n,
+            None => nick,
+        }
     }
 
     pub fn timestamp(&self) -> &str {
