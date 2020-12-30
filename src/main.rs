@@ -144,8 +144,7 @@ fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
             match match_line(&settings, &lv) {
                 MatchStatus::Match(v) => count += v.len(),
                 MatchStatus::MatchLine => count += 1,
-                MatchStatus::NoMatch => continue,
-                MatchStatus::Skip => continue,
+                _ => continue,
             }
         }
     }
