@@ -38,10 +38,8 @@ enum MatchStatus {
 fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
     let mut nick = lv.nick();
 
-    if settings.strip_joins {
-        if nick == "<--" || nick == "--" || nick == "-->" {
-            return MatchStatus::Skip;
-        }
+    if settings.strip_joins && lv.is_join() {
+        return MatchStatus::Skip;
     }
 
     if nick.starts_with('@') || nick.starts_with('+') {

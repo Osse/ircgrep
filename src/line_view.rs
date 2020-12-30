@@ -17,6 +17,11 @@ impl LineView<'_> {
         &self.line[0..self.first_tab]
     }
 
+    pub fn is_join(&self) -> bool {
+        let nick = self.nick();
+        nick == "<--" || nick == "--" || nick == "-->"
+    }
+
     pub fn new<'a>(line: &'a str) -> LineView {
         let f = line.find('\t').unwrap();
         let s = line.get(f + 1..).unwrap().find('\t').unwrap() + f + 1;
