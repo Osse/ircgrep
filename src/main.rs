@@ -129,7 +129,7 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
 }
 
 fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
-    let file = fs::File::open(&filename).unwrap();
+    let file = fs::File::open(&filename).expect("Could not open file");
 
     let r = BufReader::new(file).lines();
 
@@ -155,7 +155,7 @@ fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
 }
 
 fn get_log_files(settings: &Settings) -> vec::Vec<path::PathBuf> {
-    let home = env::var("HOME").unwrap();
+    let home = env::var("HOME").expect("HOME not set??");
     let logdir = home + "/.weechat/logs";
     let logpath = path::Path::new(&logdir);
 
@@ -165,7 +165,7 @@ fn get_log_files(settings: &Settings) -> vec::Vec<path::PathBuf> {
         "^irc\\.{}\\.#*{}\\.weechatlog$",
         settings.network, settings.channel
     );
-    let file_pattern = Regex::new(&file_pattern).unwrap();
+    let file_pattern = Regex::new(&file_pattern).expect("Invalid regex");
 
     for entry in fs::read_dir(logpath).unwrap() {
         let path = entry.unwrap().path();
@@ -204,7 +204,7 @@ fn validate_settings(settings: &mut Settings) {
     }
 
     if !settings.fixed {
-        settings.pattern = Some(Regex::new(&settings.pattern_string).unwrap());
+        settings.pattern = Some(Regex::new(&settings.pattern_string).expect("Invalid regex"));
     }
 }
 
