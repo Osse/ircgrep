@@ -26,14 +26,14 @@ impl LineView<'_> {
         nick == "<--" || nick == "--" || nick == "-->"
     }
 
-    pub fn new<'a>(line: &'a str) -> LineView {
-        let f = line.find('\t').unwrap();
-        let s = line.get(f + 1..).unwrap().find('\t').unwrap() + f + 1;
+    pub fn new(line: &str) -> LineView {
+        let first_tab = line.find('\t').unwrap();
+        let second_tab = line.get(first_tab + 1..).unwrap().find('\t').unwrap() + first_tab + 1;
 
         LineView {
-            line: line,
-            first_tab: f,
-            second_tab: s,
+            line,
+            first_tab,
+            second_tab,
         }
     }
 }

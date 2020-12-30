@@ -62,14 +62,14 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
         v.push((kek.start(), kek.end()));
     }
 
-    if v.len() > 0 {
+    if !v.is_empty() {
         MatchStatus::Match(v)
     } else {
         MatchStatus::NoMatch
     }
 }
 
-fn print_line(lv: &LineView, matches: &vec::Vec<(usize, usize)>) {
+fn print_line(lv: &LineView, matches: &[(usize, usize)]) {
     print!("{}\t{}\t", lv.timestamp(), lv.nick());
 
     let msg = lv.message();
@@ -100,7 +100,7 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
             match match_line(&settings, &lv) {
                 MatchStatus::Match(m) => {
                     if print_after < 0 {
-                        println!("{}", "--");
+                        println!("--");
                     }
 
                     for cl in context.iter() {
@@ -112,7 +112,7 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
                 }
                 MatchStatus::MatchLine => {
                     if print_after < 0 {
-                        println!("{}", "--");
+                        println!("--");
                     };
                     println!("{}", &l)
                 }
