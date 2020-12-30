@@ -3,9 +3,9 @@ mod line_view;
 use line_view::LineView;
 
 use argparse::{ArgumentParser, Store, StoreTrue};
+use circular_queue::CircularQueue;
 use colored::Colorize;
 use regex::Regex;
-use circular_queue::CircularQueue;
 
 use std::env;
 use std::fs;
@@ -55,7 +55,7 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
     let mut v = vec::Vec::<(usize, usize)>::new();
 
     if settings.pattern_string.is_empty() {
-        return MatchStatus::MatchLine
+        return MatchStatus::MatchLine;
     }
 
     for m in settings
@@ -115,16 +115,21 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
                     context.clear();
                     print_line(&lv, &m);
                     print_after = settings.context as i32;
-                },
-                MatchStatus::MatchLine => { if print_after < 0 { println!("{}", "--"); }; println!("{}", &l) },
+                }
+                MatchStatus::MatchLine => {
+                    if print_after < 0 {
+                        println!("{}", "--");
+                    };
+                    println!("{}", &l)
+                }
                 MatchStatus::NoMatch => {
                     if print_after > 0 {
                         println!("{}", l);
                     }
                     print_after -= 1;
                     context.push(l);
-                },
-                MatchStatus::Skip => continue
+                }
+                MatchStatus::Skip => continue,
             }
         }
     }
