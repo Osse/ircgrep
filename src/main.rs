@@ -11,7 +11,6 @@ use std::env;
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::option::Option;
-use std::option::Option::{None, Some};
 use std::path;
 use std::vec;
 
