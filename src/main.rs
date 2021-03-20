@@ -12,7 +12,6 @@ use std::fs;
 use std::io::{BufRead, BufReader};
 use std::option::Option;
 use std::path;
-use std::vec;
 
 struct Settings {
     nickname: String,
@@ -28,7 +27,7 @@ struct Settings {
 }
 
 enum MatchStatus {
-    Match(vec::Vec<(usize, usize)>),
+    Match(Vec<(usize, usize)>),
     MatchLine,
     NoMatch,
     Skip,
@@ -45,7 +44,7 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
         return MatchStatus::NoMatch;
     }
 
-    let mut v = vec::Vec::<(usize, usize)>::new();
+    let mut v = Vec::<(usize, usize)>::new();
 
     if settings.pattern_string.is_empty() {
         return MatchStatus::MatchLine;
@@ -154,12 +153,12 @@ fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
     );
 }
 
-fn get_log_files(settings: &Settings) -> vec::Vec<path::PathBuf> {
+fn get_log_files(settings: &Settings) -> Vec<path::PathBuf> {
     let home = env::var("HOME").expect("HOME not set??");
     let logdir = home + "/.weechat/logs";
     let logpath = path::Path::new(&logdir);
 
-    let mut logfiles = vec::Vec::<path::PathBuf>::new();
+    let mut logfiles = Vec::<path::PathBuf>::new();
 
     let file_pattern = format!(
         "^irc\\.{}\\.#*{}\\.weechatlog$",
