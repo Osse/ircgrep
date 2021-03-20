@@ -190,15 +190,12 @@ fn validate_settings(settings: &mut Settings) {
     if settings.count
         && (settings.strip_joins || settings.strip_time_stamps || settings.context > 0)
     {
-        eprintln!(
-            "{}\n",
-            "Can't combine --count with options affecting output"
-        );
+        eprintln!("Can't combine --count with options affecting output\n");
         std::process::exit(1);
     }
 
     if settings.nickname.is_empty() && settings.pattern_string.is_empty() {
-        eprintln!("{}\n", "Must give either --pattern or --nickname");
+        eprintln!("Must give either --pattern or --nickname\n");
         std::process::exit(1);
     }
 
