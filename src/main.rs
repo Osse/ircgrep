@@ -26,28 +26,28 @@ struct Settings {
     fixed: bool,
 }
 
-enum MatchStatus {
+enum MatchType {
     Match(Vec<(usize, usize)>),
-    MatchLine,
+    MatchNick,
     NoMatch,
     Skip,
 }
 
-fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
+fn match_line(settings: &Settings, lv: &LineView) -> MatchType {
     if settings.strip_joins && lv.is_join() {
-        return MatchStatus::Skip;
+        return MatchType::Skip;
     }
 
     let nick = lv.nick();
 
     if !settings.nickname.is_empty() && settings.nickname != nick {
-        return MatchStatus::NoMatch;
+        return MatchType::NoMatch;
     }
 
     let mut v = Vec::<(usize, usize)>::new();
 
     if settings.pattern_string.is_empty() {
-        return MatchStatus::MatchLine;
+        return MatchType::MatchNick;
     }
 
     for m in settings
@@ -61,9 +61,9 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchStatus {
     }
 
     if !v.is_empty() {
-        MatchStatus::Match(v)
+        MatchType::Match(v)
     } else {
-        MatchStatus::NoMatch
+        MatchType::NoMatch
     }
 }
 
@@ -96,7 +96,7 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
             let lv = LineView::new(&l);
 
             match match_line(&settings, &lv) {
-                MatchStatus::Match(m) => {
+                MatchType::Match(m) => {
                     if print_after < 0 {
                         println!("--");
                     }
@@ -108,20 +108,20 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
                     print_line(&lv, &m);
                     print_after = settings.context as i32;
                 }
-                MatchStatus::MatchLine => {
+                MatchType::MatchNick => {
                     if print_after < 0 {
                         println!("--");
                     };
                     println!("{}", &l)
                 }
-                MatchStatus::NoMatch => {
+                MatchType::NoMatch => {
                     if print_after > 0 {
                         println!("{}", l);
                     }
                     print_after -= 1;
                     context.push(l);
                 }
-                MatchStatus::Skip => continue,
+                MatchType::Skip => continue,
             }
         }
     }
@@ -139,8 +139,8 @@ fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
             let lv = LineView::new(&l);
 
             match match_line(&settings, &lv) {
-                MatchStatus::Match(v) => count += v.len(),
-                MatchStatus::MatchLine => count += 1,
+                MatchType::Match(v) => count += v.len(),
+                MatchType::MatchNick => count += 1,
                 _ => continue,
             }
         }
