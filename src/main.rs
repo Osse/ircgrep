@@ -50,14 +50,21 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchType {
         return MatchType::MatchNick;
     }
 
-    for m in settings
-        .pattern
-        .as_ref()
-        .unwrap()
-        .captures_iter(lv.message())
-    {
-        let c = m.get(0).unwrap();
-        v.push((c.start(), c.end()));
+    if !settings.fixed {
+        for m in settings
+            .pattern
+            .as_ref()
+            .unwrap()
+            .captures_iter(lv.message())
+        {
+            let c = m.get(0).unwrap();
+            v.push((c.start(), c.end()));
+        }
+    }
+    else {
+        for (pos, m) in lv.message().match_indices(&settings.pattern_string) {
+            v.push((pos, pos+m.len()));
+        }
     }
 
     if !v.is_empty() {
@@ -86,7 +93,6 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
     let file = fs::File::open(&filename).unwrap();
 
     let mut print_after: i32 = 0;
-
     let mut context: CircularQueue<String> = CircularQueue::with_capacity(settings.context);
 
     let r = BufReader::new(file).lines();
@@ -232,7 +238,7 @@ fn main() {
         ap.refer(&mut settings.pattern_string)
             .add_option(&["-e", "--pattern"], Store, "pattern");
         ap.refer(&mut settings.fixed)
-            .add_option(&["-F", "--fixed"], Store, "fixed string search");
+            .add_option(&["-F", "--fixed"], StoreTrue, "fixed string search");
         ap.refer(&mut settings.strip_time_stamps).add_option(
             &["-d", "--strip-time-stamps"],
             StoreTrue,
