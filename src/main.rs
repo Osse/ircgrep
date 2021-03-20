@@ -56,8 +56,8 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchType {
         .unwrap()
         .captures_iter(lv.message())
     {
-        let kek = m.get(0).unwrap();
-        v.push((kek.start(), kek.end()));
+        let c = m.get(0).unwrap();
+        v.push((c.start(), c.end()));
     }
 
     if !v.is_empty() {
