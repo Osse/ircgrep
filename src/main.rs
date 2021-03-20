@@ -253,7 +253,7 @@ fn main() {
 
     validate_settings(&mut settings);
 
-    if settings.count {
+    if !settings.count {
         for f in get_log_files(&settings) {
             process_file(&settings, &f);
         }
