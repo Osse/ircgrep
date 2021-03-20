@@ -97,10 +97,6 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
 
             match match_line(&settings, &lv) {
                 MatchType::Match(m) => {
-                    if print_after < 0 {
-                        println!("--");
-                    }
-
                     for cl in context.iter() {
                         println!("{}", cl);
                     }
@@ -109,16 +105,22 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
                     print_after = settings.context as i32;
                 }
                 MatchType::MatchNick => {
-                    if print_after < 0 {
-                        println!("--");
-                    };
-                    println!("{}", &l)
+                    for cl in context.iter() {
+                        println!("{}", cl);
+                    }
+                    context.clear();
+                    println!("{}", &l);
+                    print_after = settings.context as i32;
                 }
                 MatchType::NoMatch => {
                     if print_after > 0 {
-                        println!("{}", l);
+                        println!("{}", &l);
+                        print_after -= 1;
+                        if print_after == 0 {
+                            println!("--");
+                        }
                     }
-                    print_after -= 1;
+
                     context.push(l);
                 }
                 MatchType::Skip => continue,
