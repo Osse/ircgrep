@@ -259,12 +259,14 @@ fn main() {
 
     validate_settings(&mut settings);
 
+    let files = get_log_files(&settings);
+
     if !settings.count {
-        for f in get_log_files(&settings) {
+        for f in files {
             process_file(&settings, &f);
         }
     } else {
-        for f in get_log_files(&settings) {
+        for f in files {
             process_file_count(&settings, &f);
         }
     }
