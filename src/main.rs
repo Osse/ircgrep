@@ -63,10 +63,9 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchType {
             let c = m.get(0).unwrap();
             v.push((c.start(), c.end()));
         }
-    }
-    else {
+    } else {
         for (pos, m) in lv.message().match_indices(&settings.pattern_string) {
-            v.push((pos, pos+m.len()));
+            v.push((pos, pos + m.len()));
         }
     }
 
@@ -226,8 +225,11 @@ fn main() {
             .add_option(&["-N", "--network"], Store, "network");
         ap.refer(&mut settings.pattern_string)
             .add_option(&["-e", "--pattern"], Store, "pattern");
-        ap.refer(&mut settings.fixed)
-            .add_option(&["-F", "--fixed"], StoreTrue, "fixed string search");
+        ap.refer(&mut settings.fixed).add_option(
+            &["-F", "--fixed"],
+            StoreTrue,
+            "fixed string search",
+        );
         ap.refer(&mut settings.strip_time_stamps).add_option(
             &["-d", "--strip-time-stamps"],
             StoreTrue,
