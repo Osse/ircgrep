@@ -8,6 +8,7 @@ use colored::Colorize;
 use regex::Regex;
 
 use std::env;
+use std::ffi::OsStr;
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::option::Option;
@@ -164,11 +165,8 @@ fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
 }
 
 fn get_log_files(settings: &Settings) -> Vec<path::PathBuf> {
-    let home = env::var("HOME").expect("HOME not set??");
-    let logdir = home + "/.weechat/logs";
+    let logdir = env::var("HOME").expect("HOME not set??") + "/.weechat/logs";
     let logpath = path::Path::new(&logdir);
-
-    let mut logfiles = Vec::<path::PathBuf>::new();
 
     let file_pattern = format!(
         "^irc\\.{}\\.#*{}\\.weechatlog$",
@@ -176,22 +174,18 @@ fn get_log_files(settings: &Settings) -> Vec<path::PathBuf> {
     );
     let file_pattern = Regex::new(&file_pattern).expect("Invalid regex");
 
-    for entry in fs::read_dir(logpath).unwrap() {
-        let path = entry.unwrap().path();
+    let mut logfiles = logpath
+        .read_dir()
+        .expect("Invalid directory")
+        .into_iter()
+        .map(|e| e.unwrap().path())
+        .filter(|p| {
+            p.extension() == Some(&OsStr::new("weechatlog"))
+                && file_pattern.is_match(p.file_name().unwrap().to_str().unwrap())
+        })
+        .collect::<Vec<path::PathBuf>>();
 
-        match path.extension() {
-            None => continue,
-            Some(ext) => {
-                if ext != "weechatlog" {
-                    continue;
-                }
-            }
-        };
-
-        if file_pattern.is_match(path.file_name().unwrap().to_str().unwrap()) {
-            logfiles.push(path);
-        }
-    }
+    logfiles.sort();
 
     logfiles
 }
