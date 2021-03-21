@@ -44,11 +44,11 @@ fn match_line(settings: &Settings, lv: &LineView) -> MatchType {
         return MatchType::NoMatch;
     }
 
-    let mut v = Vec::<(usize, usize)>::new();
-
     if settings.pattern_string.is_empty() {
         return MatchType::MatchNick;
     }
+
+    let mut v = Vec::<(usize, usize)>::new();
 
     if !settings.fixed {
         for m in settings
