@@ -2,8 +2,11 @@ mod line_view;
 
 use line_view::LineView;
 
-use argparse::{ArgumentParser, Store, StoreTrue};
 use circular_queue::CircularQueue;
+
+#[macro_use]
+extern crate clap;
+
 use colored::Colorize;
 use regex::Regex;
 
@@ -214,39 +217,41 @@ fn main() {
         ..Default::default()
     };
 
-    {
-        let mut ap = ArgumentParser::new();
+    let matches = clap_app!(ircgrep =>
+        (version: "0.1.0")
+        (author: "Øystein Walle <oystwa@gmail.com>")
+        (@arg NICKNAME: -n --nickname +takes_value "nickname")
+        (@arg CHANNEL:  -c --channel  +takes_value "channel")
+        (@arg PATTERN:  -e --pattern  +takes_value "nickname")
+        (@arg NETWORK:  -N --network  +takes_value "network")
+        (@arg FIXED:    -f --fixed                 "fixed string search")
+        (@arg STRIP_TS: -d --("strip-timestamps")  "strip time stamps")
+        (@arg STRIP_J:  -j --("strip-joins")       "strip joins/leaves and whatnot")
+        (@arg CONTEXT:  -C --context  +takes_value "context lines")
+        (@arg COUNT:    -t --count                 "count")
+    )
+    .get_matches();
 
-        ap.refer(&mut settings.nickname)
-            .add_option(&["-n", "--nickname"], Store, "nickname");
-        ap.refer(&mut settings.channel)
-            .add_option(&["-c", "--channel"], Store, "channel");
-        ap.refer(&mut settings.network)
-            .add_option(&["-N", "--network"], Store, "network");
-        ap.refer(&mut settings.pattern_string)
-            .add_option(&["-e", "--pattern"], Store, "pattern");
-        ap.refer(&mut settings.fixed).add_option(
-            &["-F", "--fixed"],
-            StoreTrue,
-            "fixed string search",
-        );
-        ap.refer(&mut settings.strip_time_stamps).add_option(
-            &["-d", "--strip-time-stamps"],
-            StoreTrue,
-            "strip time stamps",
-        );
-        ap.refer(&mut settings.strip_joins).add_option(
-            &["-j", "--strip-joins"],
-            StoreTrue,
-            "strip joins/leaves and whatnot",
-        );
-        ap.refer(&mut settings.context)
-            .add_option(&["-C", "--context"], Store, "context lines");
-        ap.refer(&mut settings.count)
-            .add_option(&["-t", "--count"], StoreTrue, "count");
-
-        ap.parse_args_or_exit();
+    if let Some(n) = matches.value_of("NICKNAME") {
+        settings.nickname = n.to_string();
     }
+    if let Some(c) = matches.value_of("CHANNEL") {
+        settings.channel = c.to_string();
+    }
+    if let Some(p) = matches.value_of("PATTERN") {
+        settings.pattern_string = p.to_string();
+    }
+    if let Some(n) = matches.value_of("NETWORK") {
+        settings.network = n.to_string();
+    }
+    settings.fixed = matches.is_present("FIXED");
+    settings.strip_time_stamps = matches.is_present("STRIP_TS");
+    settings.strip_joins = matches.is_present("STRIP_J");
+    settings.context = match matches.value_of("CONTEXT") {
+        Some(c) => c.parse::<usize>().expect("a number"),
+        None => 0,
+    };
+    settings.count = matches.is_present("COUNT");
 
     validate_settings(&mut settings);
 

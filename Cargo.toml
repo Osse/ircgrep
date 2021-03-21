@@ -8,6 +8,6 @@ edition = "2018"
 
 [dependencies]
 regex = "1"
-argparse = "0.2.2"
 colored = "1.9.0"
 circular-queue = "0.2.2"
+clap = "2.33"
