@@ -4,7 +4,7 @@ pub struct LineView<'a> {
     second_tab: usize,
 }
 
-impl LineView<'_> {
+impl<'a> LineView<'a> {
     pub fn message(&self) -> &str {
         &self.line[self.second_tab + 1..]
     }
@@ -26,7 +26,7 @@ impl LineView<'_> {
         nick == "<--" || nick == "--" || nick == "-->"
     }
 
-    pub fn new(line: &str) -> LineView {
+    pub fn new(line: &'a str) -> LineView<'a> {
         let first_tab = line.find('\t').unwrap();
         let second_tab = line.get(first_tab + 1..).unwrap().find('\t').unwrap() + first_tab + 1;
 
