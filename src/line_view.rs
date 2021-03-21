@@ -37,3 +37,30 @@ impl LineView<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn basic_parsing() {
+        let line = "2020-06-22 11:18:46	osse	check-ignore is for diagnosing .gitignore issues. it doesn't really have an effect on the repo";
+        let lv = LineView::new(&line);
+
+        assert_eq!(lv.timestamp(), "2020-06-22 11:18:46");
+        assert_eq!(lv.nick(), "osse");
+        assert_eq!(lv.is_join(), false);
+        assert_eq!(lv.message(), "check-ignore is for diagnosing .gitignore issues. it doesn't really have an effect on the repo");
+    }
+
+    #[test]
+    fn basic_parsing2() {
+        let line = "2020-06-22 11:40:05	<--	roadie (~user@2a02:8108:ec0:1427:38ed:3aa7:170e:5e4e) has quit (Remote host closed the connection)";
+        let lv = LineView::new(&line);
+
+        assert_eq!(lv.timestamp(), "2020-06-22 11:40:05");
+        assert_eq!(lv.nick(), "<--");
+        assert_eq!(lv.is_join(), true);
+        assert_eq!(lv.message(), "roadie (~user@2a02:8108:ec0:1427:38ed:3aa7:170e:5e4e) has quit (Remote host closed the connection)");
+    }
+}

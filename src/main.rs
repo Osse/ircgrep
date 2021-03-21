@@ -13,6 +13,7 @@ use std::io::{BufRead, BufReader};
 use std::option::Option;
 use std::path;
 
+#[derive(Default)]
 struct Settings {
     nickname: String,
     channel: String,
@@ -26,6 +27,7 @@ struct Settings {
     fixed: bool,
 }
 
+#[derive(Debug, PartialEq)]
 enum MatchType {
     Match(Vec<(usize, usize)>),
     MatchNick,
@@ -214,16 +216,9 @@ fn validate_settings(settings: &mut Settings) {
 
 fn main() {
     let mut settings = Settings {
-        nickname: String::new(),
         channel: String::from(".*"),
         network: String::from(".*"),
-        pattern_string: String::new(),
-        pattern: None,
-        context: 0,
-        strip_joins: false,
-        strip_time_stamps: false,
-        count: false,
-        fixed: false,
+        ..Default::default()
     };
 
     {
@@ -269,5 +264,48 @@ fn main() {
         for f in files {
             process_file_count(&settings, &f);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_match_line() {
+        let mut settings = Settings::default();
+        settings.nickname = String::from("osse");
+        settings.fixed = true;
+        settings.pattern_string = String::from("diagnosing");
+
+        let line = "2020-06-22 11:18:46	osse	check-ignore is for diagnosing .gitignore issues. it doesn't really have an effect on the repo";
+        let lv = LineView::new(&line);
+
+        let m = match_line(&settings, &lv);
+
+        let v = vec![(20, 30)];
+        assert_eq!(m, MatchType::Match(v));
+
+        settings.nickname = String::from("foo");
+
+        let m = match_line(&settings, &lv);
+
+        assert_eq!(m, MatchType::NoMatch);
+    }
+
+    #[test]
+    fn test_match_line_many_matches() {
+        let mut settings = Settings::default();
+        settings.nickname = String::from("osse");
+        settings.fixed = true;
+        settings.pattern_string = String::from("re");
+
+        let line = "2020-06-22 11:18:46	osse	check-ignore is for diagnosing .gitignore issues. it doesn't really have an effect on the repo";
+        let lv = LineView::new(&line);
+
+        let m = match_line(&settings, &lv);
+
+        let v = vec![(10, 12), (39, 41), (61, 63), (90, 92)];
+        assert_eq!(m, MatchType::Match(v));
     }
 }
