@@ -106,7 +106,7 @@ fn process_file(
     mut writer: impl Write,
 ) -> std::io::Result<()> {
     let mut print_after: i32 = 0;
-    let mut context: CircularQueue<String> = CircularQueue::with_capacity(settings.context);
+    let mut context = CircularQueue::with_capacity(settings.context);
 
     for line in open_file(&filename) {
         if let Ok(l) = line {
