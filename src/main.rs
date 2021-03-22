@@ -13,7 +13,7 @@ use regex::Regex;
 use std::env;
 use std::ffi::OsStr;
 use std::fs;
-use std::io::{BufRead, BufReader};
+use std::io::{stdout, BufRead, BufReader, Write};
 use std::option::Option;
 use std::path;
 
@@ -100,7 +100,11 @@ fn open_file(filename: &path::PathBuf) -> std::io::Lines<BufReader<std::fs::File
     BufReader::new(file).lines()
 }
 
-fn process_file(settings: &Settings, filename: &path::PathBuf) {
+fn process_file(
+    settings: &Settings,
+    filename: &path::PathBuf,
+    mut writer: impl Write,
+) -> std::io::Result<()> {
     let mut print_after: i32 = 0;
     let mut context: CircularQueue<String> = CircularQueue::with_capacity(settings.context);
 
@@ -111,7 +115,7 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
             match match_line(&settings, &lv) {
                 MatchType::Match(m) => {
                     for cl in context.iter() {
-                        println!("{}", cl);
+                        writeln!(writer, "{}", cl)?;
                     }
                     context.clear();
                     print_line(&lv, &m);
@@ -119,18 +123,18 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
                 }
                 MatchType::MatchNick => {
                     for cl in context.iter() {
-                        println!("{}", cl);
+                        writeln!(writer, "{}", cl)?;
                     }
                     context.clear();
-                    println!("{}", &l);
+                    writeln!(writer, "{}", &l)?;
                     print_after = settings.context as i32;
                 }
                 MatchType::NoMatch => {
                     if print_after > 0 {
-                        println!("{}", &l);
+                        writeln!(writer, "{}", &l)?;
                         print_after -= 1;
                         if print_after == 0 {
-                            println!("--");
+                            writeln!(writer, "--")?;
                         }
                     }
 
@@ -140,9 +144,15 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
             }
         }
     }
+
+    Ok(())
 }
 
-fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
+fn process_file_count(
+    settings: &Settings,
+    filename: &path::PathBuf,
+    mut writer: impl Write,
+) -> std::io::Result<()> {
     let mut count = 0;
 
     for line in open_file(&filename) {
@@ -156,12 +166,15 @@ fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
             }
         }
     }
-    println!(
+    writeln!(
+        writer,
         "{}{}{}",
         filename.file_name().unwrap().to_str().unwrap().purple(),
         ":".cyan(),
         count
-    );
+    )?;
+
+    Ok(())
 }
 
 fn get_log_files(settings: &Settings) -> Vec<path::PathBuf> {
@@ -208,7 +221,7 @@ fn validate_settings(settings: &mut Settings) {
     }
 }
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     let mut settings = Settings {
         channel: String::from(".*"),
         network: String::from(".*"),
@@ -257,13 +270,15 @@ fn main() {
 
     if !settings.count {
         for f in files {
-            process_file(&settings, &f);
+            process_file(&settings, &f, &mut stdout())?;
         }
     } else {
         for f in files {
-            process_file_count(&settings, &f);
+            process_file_count(&settings, &f, &mut stdout())?;
         }
     }
+
+    Ok(())
 }
 
 #[cfg(test)]
