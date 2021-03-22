@@ -94,15 +94,17 @@ fn print_line(lv: &LineView, matches: &[(usize, usize)]) {
     }
 }
 
-fn process_file(settings: &Settings, filename: &path::PathBuf) {
-    let file = fs::File::open(&filename).unwrap();
+fn open_file(filename: &path::PathBuf) -> std::io::Lines<BufReader<std::fs::File>> {
+    let file = fs::File::open(&filename).expect("Could not open file");
 
+    BufReader::new(file).lines()
+}
+
+fn process_file(settings: &Settings, filename: &path::PathBuf) {
     let mut print_after: i32 = 0;
     let mut context: CircularQueue<String> = CircularQueue::with_capacity(settings.context);
 
-    let r = BufReader::new(file).lines();
-
-    for line in r {
+    for line in open_file(&filename) {
         if let Ok(l) = line {
             let lv = LineView::new(&l);
 
@@ -141,13 +143,9 @@ fn process_file(settings: &Settings, filename: &path::PathBuf) {
 }
 
 fn process_file_count(settings: &Settings, filename: &path::PathBuf) {
-    let file = fs::File::open(&filename).expect("Could not open file");
-
-    let r = BufReader::new(file).lines();
-
     let mut count = 0;
 
-    for line in r {
+    for line in open_file(&filename) {
         if let Ok(l) = line {
             let lv = LineView::new(&l);
 
