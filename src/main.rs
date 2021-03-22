@@ -299,8 +299,17 @@ mod tests {
 
         let v = vec![(20, 30)];
         assert_eq!(m, MatchType::Match(v));
+    }
 
+    #[test]
+    fn test_no_match_line() {
+        let mut settings = Settings::default();
         settings.nickname = String::from("foo");
+        settings.fixed = true;
+        settings.pattern_string = String::from("diagnosing");
+
+        let line = "2020-06-22 11:18:46	osse	check-ignore is for diagnosing .gitignore issues. it doesn't really have an effect on the repo";
+        let lv = LineView::new(&line);
 
         let m = match_line(&settings, &lv);
 
@@ -321,5 +330,16 @@ mod tests {
 
         let v = vec![(10, 12), (39, 41), (61, 63), (90, 92)];
         assert_eq!(m, MatchType::Match(v));
+    }
+
+    #[test]
+    fn test_context() {
+        let mut settings = Settings::default();
+        settings.nickname = String::from("osse");
+        settings.fixed = true;
+        settings.pattern_string = String::from("re");
+        settings.context = 3;
+
+        assert_eq!(true, true);
     }
 }
