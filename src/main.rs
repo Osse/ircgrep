@@ -14,7 +14,6 @@ use std::env;
 use std::ffi::OsStr;
 use std::fs;
 use std::io::{stdout, BufRead, BufReader, Write};
-use std::option::Option;
 use std::path;
 
 #[derive(Default)]
