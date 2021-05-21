@@ -16,7 +16,7 @@ use std::fs;
 use std::io::{stdout, BufRead, BufReader, Write};
 use std::path;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Settings {
     nickname: String,
     channel: String,
@@ -232,8 +232,8 @@ fn main() -> Result<(), std::io::Error> {
         (author: "Øystein Walle <oystwa@gmail.com>")
         (@arg NICKNAME: -n --nickname +takes_value "nickname")
         (@arg CHANNEL:  -c --channel  +takes_value "channel")
-        (@arg PATTERN:  -e --pattern  +takes_value "nickname")
-        (@arg NETWORK:  -N --network  +takes_value "network")
+        (@arg PATTERN:  -e --pattern  +takes_value default_value(".*") "nickname")
+        (@arg NETWORK:  -N --network  +takes_value default_value(".*") "network")
         (@arg FIXED:    -f --fixed                 "fixed string search")
         (@arg STRIP_TS: -d --("strip-timestamps")  "strip time stamps")
         (@arg STRIP_J:  -j --("strip-joins")       "strip joins/leaves and whatnot")
